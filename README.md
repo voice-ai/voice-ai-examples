@@ -1,6 +1,7 @@
-# TTS API Examples and Reference
+# Voice AI Examples and Reference
 
-This repository contains public Voice.AI TTS examples aligned to the documented public API surface.
+This repository contains public Voice.AI developer platform examples aligned to the documented public API surface.
+The current example set includes TTS API references and an agent webhook receiver example.
 
 The top-level examples default to the public Voice.AI dev environment:
 - HTTP: `https://dev.voice.ai`
@@ -18,7 +19,7 @@ Each standalone script keeps editable constants at the top of the file and only 
 - `tts_websocket_multi_context.py` - multi-context WebSocket flow for `/api/v1/tts/multi-stream`
 - `telnyx_media_streams_tts/server_basic_example.py` - basic Telnyx relay using `/api/v1/tts/multi-stream`
 - `telnyx_media_streams_tts/server_example.py` - more robust Telnyx relay using `/api/v1/tts/multi-stream`
-- `webhook_receiver_server.py` - webhook receiver helper
+- `webhook_receiver_server.py` - agent webhook receiver example
 
 ## Quick Start
 
