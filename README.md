@@ -1,11 +1,6 @@
 # Voice AI Examples and Reference
 
-This repository is a small set of standalone voice.ai example scripts.
-
-Each example is meant to be readable on its own:
-- the purpose of the file is explained in the header comment or docstring
-- editable constants live at the top of the file
-- the scripts default to the public `dev.voice.ai` environment unless noted otherwise
+This repository contains voice.ai example scripts.
 
 For product documentation and the full API reference, use:
 - [voice.ai/docs](https://voice.ai/docs)
