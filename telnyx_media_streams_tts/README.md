@@ -1,13 +1,12 @@
-# Telnyx Media Streams + Voice.ai TTS API
+# Telnyx Media Streams + Voice AI TTS
 
-This example answers an inbound Telnyx call, opens a bidirectional media stream, requests speech from the Voice.ai TTS WebSocket API, and streams that audio back to the caller.
+This example answers an inbound Telnyx call, opens a bidirectional media stream, requests speech from the voice.ai TTS WebSocket API, and streams that audio back to the caller.
 
 It serves:
 - `POST /telnyx/webhook` for Telnyx call-control events
 - `WS /media` for the Telnyx bidirectional media stream
 
-By default, both examples connect upstream to:
-- `wss://dev.voice.ai/api/v1/tts/multi-stream`
+By default, both examples connect to `wss://dev.voice.ai/api/v1/tts/multi-stream`.
 
 ## Files
 
@@ -31,11 +30,6 @@ Runtime settings are hardcoded at the top of:
 - `server_basic_example.py`
 - `server_example.py`
 - `telnyx_setup.py`
-
-Recommended defaults:
-- Voice.ai TTS API: `pcm_16000`
-- upstream delivery mode: `paced`
-- Telnyx media stream: `L16 / 16000`
 
 ## Install
 
@@ -79,5 +73,5 @@ It will listen on `http://localhost:8765` and serve:
 
 1. Telnyx sends an inbound webhook to `/telnyx/webhook`.
 2. The example answers the call and starts bidirectional RTP streaming to `/media`.
-3. `/media` opens an upstream Voice.ai TTS WebSocket request.
+3. `/media` opens a voice.ai TTS WebSocket request.
 4. TTS audio is framed into 20 ms packets and streamed back to the caller.
