@@ -6,23 +6,18 @@ For product documentation and the full API reference, use:
 - [voice.ai/docs](https://voice.ai/docs)
 - [voice.ai/docs/api-reference](https://voice.ai/docs/api-reference)
 
-## TTS Inference
+## Text to Speech
 
-| Example | Description |
-| --- | --- |
-| [`HTTP Speech`](tts_generate_speech.py) | Generate one complete audio response over HTTP |
-| [`HTTP Speech Streaming`](tts_generate_speech_stream.py) | Stream audio over HTTP as it is generated |
-| [`Single-Context WebSocket`](tts_websocket_single_context.py) | Single-generation WebSocket example |
-| [`Multi-Context WebSocket`](tts_websocket_multi_context.py) | Multi-context WebSocket example |
+| Category | Example | Description |
+| --- | --- | --- |
+| Voice cloning | [`TTS Clone`](tts_clone.py) | Clone a voice from reference audio |
+| Voice cloning | [`Voice CRUD`](tts_voice_crud.py) | Create, list, get, update, and delete voices |
+| Inference | [`HTTP Speech`](tts_generate_speech.py) | Generate one complete audio response over HTTP |
+| Inference | [`HTTP Speech Streaming`](tts_generate_speech_stream.py) | Stream audio over HTTP as it is generated |
+| Inference | [`Single-Context WebSocket`](tts_websocket_single_context.py) | Single-generation WebSocket example |
+| Inference | [`Multi-Context WebSocket`](tts_websocket_multi_context.py) | Multi-context WebSocket example |
 
-## TTS Voice Cloning
-
-| Example | Description |
-| --- | --- |
-| [`TTS Clone`](tts_clone.py) | Clone a voice from reference audio |
-| [`Voice CRUD`](tts_voice_crud.py) | Create, list, get, update, and delete voices |
-
-## Agents
+## Voice Agents
 
 | Example | Description |
 | --- | --- |
