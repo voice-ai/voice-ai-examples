@@ -1,0 +1,3 @@
+[submodule "livekit-plugins-voiceai-example"]
+	path = livekit-plugins-voiceai-example
+	url = https://github.com/voice-ai/livekit-plugins-voiceai-example.git

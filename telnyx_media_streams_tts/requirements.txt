@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+numpy
+scipy
+websockets
+python-dotenv
+telnyx>=3.4.0
