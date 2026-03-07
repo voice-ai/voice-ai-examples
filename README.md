@@ -33,7 +33,7 @@ For product documentation and the full API reference, use:
 | Example | Description |
 | --- | --- |
 | [`Telnyx Media Streams TTS`](telnyx_media_streams_tts) | Telnyx relay examples with setup script and local README |
-| [`LiveKit Plugins VoiceAI`](livekit-plugins-voiceai-example) | LiveKit Agents example repo using the voice.ai TTS plugin |
+| [`LiveKit Plugins VoiceAI`](https://github.com/voice-ai/livekit-plugins-voiceai-example) | LiveKit Agents example repo using the voice.ai TTS plugin |
 
 ## Running The Examples
 
