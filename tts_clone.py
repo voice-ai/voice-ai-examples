@@ -1,5 +1,5 @@
 """
-Voice.AI TTS Example - Clone Voice
+voice.ai TTS Example - Clone Voice
 
 This atomic example demonstrates the `/api/v1/tts/clone-voice` endpoint.
 Use it when you want to create a new cloned voice from reference audio.
@@ -125,7 +125,7 @@ def wait_for_voice_available(voice_id: str, max_wait_seconds: int, poll_interval
 
 def main():
     print("=" * 60)
-    print("Voice.AI TTS Example: Clone Voice")
+    print("voice.ai TTS Example: Clone Voice")
     print("=" * 60)
 
     try:

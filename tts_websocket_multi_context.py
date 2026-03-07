@@ -1,5 +1,5 @@
 """
-Voice.AI WebSocket TTS Example - Multi Context
+voice.ai WebSocket TTS Example - Multi Context
 
 This atomic example demonstrates the `/api/v1/tts/multi-stream` protocol.
 Use it when one WebSocket connection needs to handle multiple independent
@@ -217,7 +217,7 @@ async def receive_contexts_until_complete(
 
 async def main():
     print("\n" + "=" * 60)
-    print("Voice.AI WebSocket TTS Example: Multi Context")
+    print("voice.ai WebSocket TTS Example: Multi Context")
     print("=" * 60)
     print(f"WebSocket URL: {VOICEAI_WS_MULTI_URL}")
     print(f"Voice ID: {VOICE_ID}")

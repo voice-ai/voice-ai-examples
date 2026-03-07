@@ -1,5 +1,5 @@
 """
-Voice.AI WebSocket TTS Example - Single Context
+voice.ai WebSocket TTS Example - Single Context
 
 This atomic example demonstrates the `/api/v1/tts/stream` protocol.
 Use it when one WebSocket connection is dedicated to one single generation.
@@ -177,7 +177,7 @@ async def receive_audio_until_complete(websocket) -> tuple[bytes, float, float]:
 
 async def main():
     print("\n" + "=" * 60)
-    print("Voice.AI WebSocket TTS Example: Single Context")
+    print("voice.ai WebSocket TTS Example: Single Context")
     print("=" * 60)
     print(f"WebSocket URL: {VOICEAI_WS_URL}")
     print(f"Voice ID: {VOICE_ID}")

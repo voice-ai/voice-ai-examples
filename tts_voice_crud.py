@@ -1,5 +1,5 @@
 """
-Voice.AI TTS Example - Voice Management
+voice.ai TTS Example - Voice Management
 
 This example demonstrates the public voice-management endpoints:
 - `POST /api/v1/tts/clone-voice`
@@ -181,7 +181,7 @@ def delete_voice(voice_id: str) -> bool:
 def main():
     """Demonstrate all voice management operations"""
     print("=" * 60)
-    print("Voice.AI TTS Example: Voice Management")
+    print("voice.ai TTS Example: Voice Management")
     print("=" * 60)
     
     try:

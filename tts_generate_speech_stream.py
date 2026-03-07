@@ -1,5 +1,5 @@
 """
-Voice.AI TTS Example - HTTP Streaming Speech
+voice.ai TTS Example - HTTP Streaming Speech
 
 This atomic example demonstrates the `/api/v1/tts/speech/stream` endpoint.
 Use it when you want HTTP chunked transfer so audio arrives as it is generated.
@@ -32,7 +32,7 @@ API_KEY = "YOUR_API_KEY_HERE"
 # - PCM variants: "pcm_8000", "pcm_16000", "pcm_22050", "pcm_24000",
 #   "pcm_32000", "pcm_44100", "pcm_48000"
 # - WAV variants: "wav_16000", "wav_22050", "wav_24000"
-TEXT = "Hello from the Voice.AI HTTP streaming speech example."
+TEXT = "Hello from the voice.ai HTTP streaming speech example."
 VOICE_ID = None  # Optional: set a voice ID to use a specific cloned voice
 AUDIO_FORMAT = "mp3"
 TEMPERATURE = 1.0
@@ -74,7 +74,7 @@ def build_payload() -> dict:
 
 def main():
     print("=" * 60)
-    print("Voice.AI TTS Example: HTTP Streaming Speech")
+    print("voice.ai TTS Example: HTTP Streaming Speech")
     print("=" * 60)
 
     try:
