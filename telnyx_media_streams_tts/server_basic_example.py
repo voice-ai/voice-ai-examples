@@ -17,7 +17,7 @@ from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconn
 # =============================================================================
 # TELNYX TTS RELAY: BASIC EXAMPLE
 # =============================================================================
-# Minimal public example for a Telnyx <-> Voice.ai TTS relay.
+# Minimal example for a Telnyx <-> Voice.ai TTS relay.
 # Strategy:
 # - fixed 20 ms playout cadence
 # - small startup prebuffer
