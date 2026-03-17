@@ -31,7 +31,7 @@ constants so you can attach a managed pronunciation dictionary to direct TTS req
 
 | Example | Description |
 | --- | --- |
-| [`Telnyx Media Streams TTS`](telnyx_media_streams_tts) | Telnyx relay examples with setup script and local README |
+| [`Telnyx Media Streams TTS`](telnyx_media_streams_tts) | Telnyx relay examples with setup instructions |
 | [`LiveKit Plugins VoiceAI`](https://github.com/voice-ai/livekit-plugins-voiceai-example) | LiveKit Agents example repo using the voice.ai TTS plugin |
 
 ## Running The Examples
@@ -45,4 +45,4 @@ python tts_generate_speech.py
 python tts_websocket_multi_context.py
 ```
 
-Some integration examples have extra setup requirements. See the file header or the local README in that example folder when present.
+Some integration examples have extra setup requirements. See the file header or the setup instructions in that example folder when needed.
