@@ -38,6 +38,8 @@ API_KEY = "YOUR_API_KEY_HERE"
 # - text
 # - language
 # - model
+# - dictionary_id
+# - dictionary_version
 # - audio_format
 # - temperature
 # - top_p
@@ -70,6 +72,12 @@ MODEL = None  # Leave as None to let the server auto-select from LANGUAGE
 # Supported language values:
 # - "en", "ca", "sv", "es", "fr", "de", "it", "pt", "pl", "ru", "nl"
 LANGUAGE = "en"
+
+# Optional managed pronunciation dictionary settings:
+# - dictionary_id: dictionary ID from /api/v1/tts/pronunciation-dictionaries
+# - dictionary_version: optional saved version to pin; requires DICTIONARY_ID
+DICTIONARY_ID = None
+DICTIONARY_VERSION = None
 
 # Supported delivery_mode values:
 # - "raw"
@@ -153,6 +161,10 @@ def build_init_payload(context_id: str, text: str) -> dict:
         payload["voice_id"] = VOICE_ID
     if MODEL is not None:
         payload["model"] = MODEL
+    if DICTIONARY_ID is not None:
+        payload["dictionary_id"] = DICTIONARY_ID
+    if DICTIONARY_VERSION is not None:
+        payload["dictionary_version"] = DICTIONARY_VERSION
     return payload
 
 

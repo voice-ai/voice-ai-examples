@@ -4,6 +4,7 @@ Example Webhook Receiver Server
 
 A simple HTTP server that receives and validates Voice.ai webhooks for both:
 - Event notifications (webhooks.events)
+- inbound call webhook (webhooks.inbound_call)
 - Webhook tools (webhooks.tools outbound API calls)
 
 Usage:
@@ -13,7 +14,7 @@ Usage:
     # Custom port
     python webhook_receiver_server.py --port 9000
     
-    # With HMAC secret for event-signature validation
+    # With HMAC secret for event/inbound-call signature validation
     python webhook_receiver_server.py --secret your-webhook-secret
     
     # Expose via ngrok for testing deployed environments
@@ -21,11 +22,12 @@ Usage:
 
 The server will:
 - Accept GET/POST/PUT/PATCH/DELETE on receiver paths
-- Detect whether inbound request is an event webhook or tool webhook
-- Validate HMAC signatures for event webhooks if --secret is provided
+- Detect whether inbound request is an event webhook, inbound call webhook, or tool webhook
+- Validate HMAC signatures for event and inbound call webhooks if --secret is provided
 - Log metadata headers for tool webhooks:
   X-VoiceAI-Request-Id, X-VoiceAI-Tool-Name, X-VoiceAI-Agent-Id, X-VoiceAI-Call-Id
-- Return JSON echo responses to help validate request shape
+- Return JSON echo responses for event/tool webhooks
+- Return example personalization data for inbound call webhooks
 """
 
 import argparse
@@ -102,19 +104,25 @@ class WebhookHandler(BaseHTTPRequestHandler):
         return raw_body.decode(errors='replace'), None
 
     def _determine_request_type(self, path: str, payload) -> str:
-        """Classify inbound request as event/tool/unknown."""
+        """Classify inbound request as event/inbound_call/tool/unknown."""
         if self.headers.get('X-VoiceAI-Tool-Name'):
             return "tool"
         if path.startswith('/webhooks/tools'):
             return "tool"
+        if path.startswith('/webhooks/inbound-call'):
+            return "inbound_call"
         if isinstance(payload, dict) and 'event' in payload:
             return "event"
         if self.headers.get('X-Webhook-Signature') or self.headers.get('X-Webhook-Timestamp'):
+            if isinstance(payload, dict) and {"agent_id", "call_id", "from_number", "to_number"}.issubset(payload.keys()):
+                return "inbound_call"
             return "event"
+        if isinstance(payload, dict) and {"agent_id", "call_id"}.issubset(payload.keys()):
+            return "inbound_call"
         return "unknown"
 
-    def _validate_event_signature(self, raw_body: bytes):
-        """Validate event webhook signature when secret is configured."""
+    def _validate_signed_webhook(self, raw_body: bytes):
+        """Validate event/inbound_call webhook signature when secret is configured."""
         if not webhook_secret:
             return None, None
 
@@ -159,6 +167,15 @@ class WebhookHandler(BaseHTTPRequestHandler):
                 logger.info("  Signature: (not configured)")
             else:
                 logger.info(f"  Signature: {'✓ valid' if signature_valid else '✗ invalid'}")
+        elif request_type == "inbound_call":
+            logger.info(f"  Agent ID: {payload.get('agent_id', '(missing)') if isinstance(payload, dict) else '(missing)'}")
+            logger.info(f"  Call ID: {payload.get('call_id', '(missing)') if isinstance(payload, dict) else '(missing)'}")
+            logger.info(f"  From: {payload.get('from_number', '(missing)') if isinstance(payload, dict) else '(missing)'}")
+            logger.info(f"  To: {payload.get('to_number', '(missing)') if isinstance(payload, dict) else '(missing)'}")
+            if signature_valid is None:
+                logger.info("  Signature: (not configured)")
+            else:
+                logger.info(f"  Signature: {'✓ valid' if signature_valid else '✗ invalid'}")
         elif request_type == "tool":
             logger.info(f"  Tool Name: {self.headers.get('X-VoiceAI-Tool-Name', '(missing)')}")
             logger.info(f"  Request ID: {self.headers.get('X-VoiceAI-Request-Id', '(missing)')}")
@@ -176,7 +193,7 @@ class WebhookHandler(BaseHTTPRequestHandler):
         logger.info("-" * 60)
 
     def _handle_incoming_request(self) -> None:
-        """Handle event and tool webhooks in a generic way."""
+        """Handle event, inbound_call, and tool webhooks in a generic way."""
         parsed_url = urlparse(self.path)
         path = parsed_url.path
         query_params = _flatten_query_params(parse_qs(parsed_url.query, keep_blank_values=True))
@@ -197,11 +214,11 @@ class WebhookHandler(BaseHTTPRequestHandler):
         request_type = self._determine_request_type(path, payload)
         signature_valid = None
 
-        # Signature validation applies only to event webhooks.
-        if request_type == "event":
-            signature_valid, signature_error = self._validate_event_signature(raw_body)
+        # Signature validation applies to signed webhooks only.
+        if request_type in {"event", "inbound_call"}:
+            signature_valid, signature_error = self._validate_signed_webhook(raw_body)
             if webhook_secret and not signature_valid:
-                logger.warning(f"❌ Event webhook signature validation failed: {signature_error}")
+                logger.warning(f"❌ {request_type} webhook signature validation failed: {signature_error}")
                 self._send_json(401, {"error": signature_error})
                 return
 
@@ -224,6 +241,17 @@ class WebhookHandler(BaseHTTPRequestHandler):
             "signature_valid": signature_valid,
             "payload": payload
         })
+
+        if request_type == "inbound_call":
+            response_payload = {
+                "dynamic_variables": {
+                    "source": "example-inbound-call-webhook",
+                    "caller_number": payload.get("from_number") if isinstance(payload, dict) else "",
+                    "dialed_number": payload.get("to_number") if isinstance(payload, dict) else "",
+                },
+            }
+            self._send_json(200, response_payload)
+            return
 
         self._send_json(200, {
             "status": "ok",
@@ -314,7 +342,8 @@ def main():
     print("  Endpoints:")
     print(f"    GET  /health       - Health check")
     print(f"    GET  /webhooks     - List received requests (debug; no query)")
-    print(f"    Any  /webhooks...  - Receive event/tool webhooks")
+    print(f"    Any  /webhooks...           - Receive event/tool webhooks")
+    print(f"    POST /webhooks/inbound-call - Example inbound_call webhook")
     print()
     print("  Supported webhook methods:")
     print(f"    GET, POST, PUT, PATCH, DELETE")
@@ -322,9 +351,10 @@ def main():
     print("  To expose publicly, use ngrok:")
     print(f"    ngrok http {args.port}")
     print()
-    print("  Configure your agent webhook URL to:")
-    print(f"    http://localhost:{args.port}/webhooks")
-    print("    (or your ngrok URL)")
+    print("  Configure your agent webhook URL(s) to:")
+    print(f"    events/tools: http://localhost:{args.port}/webhooks")
+    print(f"    inbound_call: http://localhost:{args.port}/webhooks/inbound-call")
+    print("    (or your ngrok URL equivalents)")
     print("=" * 60)
     print()
     print("Waiting for webhooks...")

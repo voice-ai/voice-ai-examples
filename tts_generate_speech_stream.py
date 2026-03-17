@@ -7,6 +7,7 @@ Use it when you want HTTP chunked transfer so audio arrives as it is generated.
 What this file shows:
 - how to authenticate with a bearer token
 - how to set every supported public request field at the top of the file
+- how to optionally attach a managed pronunciation dictionary
 - how to stream the response directly to disk
 
 Usage:
@@ -49,6 +50,12 @@ MODEL = None  # Leave as None to let the server auto-select from LANGUAGE
 # - "en", "ca", "sv", "es", "fr", "de", "it", "pt", "pl", "ru", "nl"
 LANGUAGE = "en"
 
+# Optional managed pronunciation dictionary settings:
+# - dictionary_id: dictionary ID from /api/v1/tts/pronunciation-dictionaries
+# - dictionary_version: optional saved version to pin; requires DICTIONARY_ID
+DICTIONARY_ID = None
+DICTIONARY_VERSION = None
+
 OUTPUT_FILE = "generated_speech_stream.mp3"  # Update the extension if you change AUDIO_FORMAT
 
 headers = {
@@ -69,6 +76,10 @@ def build_payload() -> dict:
         payload["voice_id"] = VOICE_ID
     if MODEL is not None:
         payload["model"] = MODEL
+    if DICTIONARY_ID is not None:
+        payload["dictionary_id"] = DICTIONARY_ID
+    if DICTIONARY_VERSION is not None:
+        payload["dictionary_version"] = DICTIONARY_VERSION
     return payload
 
 
