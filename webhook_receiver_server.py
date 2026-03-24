@@ -51,6 +51,12 @@ logger = logging.getLogger(__name__)
 webhook_secret: Optional[str] = None
 received_requests: list = []
 
+EVENT_WEBHOOK_PATH = "/webhooks/voice-events"
+INBOUND_CALL_WEBHOOK_PATH = "/webhooks/inbound-call"
+TOOL_WEBHOOK_PREFIX = "/webhooks/tools"
+ACCOUNT_STATUS_TOOL_PATH = f"{TOOL_WEBHOOK_PREFIX}/account-status"
+SEARCH_KB_TOOL_PATH = f"{TOOL_WEBHOOK_PREFIX}/search-kb"
+
 
 def _flatten_query_params(query_params: dict) -> dict:
     """Convert parse_qs output to a simpler dict."""
@@ -107,9 +113,11 @@ class WebhookHandler(BaseHTTPRequestHandler):
         """Classify inbound request as event/inbound_call/tool/unknown."""
         if self.headers.get('X-VoiceAI-Tool-Name'):
             return "tool"
-        if path.startswith('/webhooks/tools'):
+        if path.startswith(TOOL_WEBHOOK_PREFIX):
             return "tool"
-        if path.startswith('/webhooks/inbound-call'):
+        if path == EVENT_WEBHOOK_PATH:
+            return "event"
+        if path == INBOUND_CALL_WEBHOOK_PATH:
             return "inbound_call"
         if isinstance(payload, dict) and 'event' in payload:
             return "event"
@@ -192,6 +200,41 @@ class WebhookHandler(BaseHTTPRequestHandler):
             logger.info(f"  Payload: {payload_preview}")
         logger.info("-" * 60)
 
+    def _build_tool_response(self, path: str, query_params: dict, payload) -> dict:
+        """Return route-specific sample responses for documented tool endpoints."""
+        if path == ACCOUNT_STATUS_TOOL_PATH:
+            customer_id = payload.get("customer_id") if isinstance(payload, dict) else None
+            return {
+                "result": {
+                    "status": "active",
+                    "tier": "enterprise",
+                    "customer_id": customer_id,
+                }
+            }
+
+        if path == SEARCH_KB_TOOL_PATH:
+            return {
+                "result": {
+                    "matches": [
+                        {
+                            "title": "Refund policy",
+                            "snippet": "Customers can request a refund within 30 days.",
+                        }
+                    ],
+                    "query": query_params.get("query"),
+                    "top_k": query_params.get("top_k"),
+                }
+            }
+
+        return {
+            "status": "ok",
+            "request_type": "tool",
+            "method": self.command,
+            "path": path,
+            "tool_name": self.headers.get('X-VoiceAI-Tool-Name'),
+            "received_at": datetime.now().isoformat(),
+        }
+
     def _handle_incoming_request(self) -> None:
         """Handle event, inbound_call, and tool webhooks in a generic way."""
         parsed_url = urlparse(self.path)
@@ -251,6 +294,10 @@ class WebhookHandler(BaseHTTPRequestHandler):
                 },
             }
             self._send_json(200, response_payload)
+            return
+
+        if request_type == "tool":
+            self._send_json(200, self._build_tool_response(path, query_params, payload))
             return
 
         self._send_json(200, {
@@ -340,10 +387,13 @@ def main():
     print(f"  Secret: {'configured' if webhook_secret else 'not configured'}")
     print()
     print("  Endpoints:")
-    print(f"    GET  /health       - Health check")
-    print(f"    GET  /webhooks     - List received requests (debug; no query)")
-    print(f"    Any  /webhooks...           - Receive event/tool webhooks")
-    print(f"    POST /webhooks/inbound-call - Example inbound_call webhook")
+    print(f"    GET  /health                       - Health check")
+    print(f"    GET  /webhooks                     - List received requests (debug; no query)")
+    print(f"    POST {EVENT_WEBHOOK_PATH}          - Event webhook receiver")
+    print(f"    POST {INBOUND_CALL_WEBHOOK_PATH}   - Inbound call personalization")
+    print(f"    GET  {SEARCH_KB_TOOL_PATH}         - Example GET tool webhook")
+    print(f"    POST {ACCOUNT_STATUS_TOOL_PATH}    - Example POST tool webhook")
+    print(f"    Any  {TOOL_WEBHOOK_PREFIX}/<name>  - Generic tool webhook fallback")
     print()
     print("  Supported webhook methods:")
     print(f"    GET, POST, PUT, PATCH, DELETE")
@@ -352,8 +402,10 @@ def main():
     print(f"    ngrok http {args.port}")
     print()
     print("  Configure your agent webhook URL(s) to:")
-    print(f"    events/tools: http://localhost:{args.port}/webhooks")
-    print(f"    inbound_call: http://localhost:{args.port}/webhooks/inbound-call")
+    print(f"    events:       http://localhost:{args.port}{EVENT_WEBHOOK_PATH}")
+    print(f"    inbound_call: http://localhost:{args.port}{INBOUND_CALL_WEBHOOK_PATH}")
+    print(f"    tool (POST):  http://localhost:{args.port}{ACCOUNT_STATUS_TOOL_PATH}")
+    print(f"    tool (GET):   http://localhost:{args.port}{SEARCH_KB_TOOL_PATH}")
     print("    (or your ngrok URL equivalents)")
     print("=" * 60)
     print()
