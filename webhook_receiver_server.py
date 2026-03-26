@@ -213,6 +213,11 @@ class WebhookHandler(BaseHTTPRequestHandler):
             }
 
         if path == SEARCH_KB_TOOL_PATH:
+            top_k = query_params.get("top_k")
+            try:
+                top_k = int(top_k) if top_k is not None else None
+            except (TypeError, ValueError):
+                pass
             return {
                 "result": {
                     "matches": [
@@ -222,7 +227,7 @@ class WebhookHandler(BaseHTTPRequestHandler):
                         }
                     ],
                     "query": query_params.get("query"),
-                    "top_k": query_params.get("top_k"),
+                    "top_k": top_k,
                 }
             }
 
