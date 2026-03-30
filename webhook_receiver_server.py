@@ -3,7 +3,7 @@
 Example Webhook Receiver Server
 
 A simple HTTP server that receives and validates Voice.ai webhooks for both:
-- Event notifications (webhooks.events)
+- Event notifications (webhooks.events[])
 - inbound call webhook (webhooks.inbound_call)
 - Webhook tools (webhooks.tools outbound API calls)
 
@@ -22,7 +22,7 @@ Usage:
 
 The server will:
 - Accept GET/POST/PUT/PATCH/DELETE on receiver paths
-- Detect whether inbound request is an event webhook, inbound call webhook, or tool webhook
+- Detect whether an inbound request is an event webhook, inbound call webhook, or tool webhook
 - Validate HMAC signatures for event and inbound call webhooks if --secret is provided
 - Log metadata headers for tool webhooks:
   X-VoiceAI-Request-Id, X-VoiceAI-Tool-Name, X-VoiceAI-Agent-Id, X-VoiceAI-Call-Id
