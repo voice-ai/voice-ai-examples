@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice AI Managed Tools Browser Demo</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1220;
+      --panel: rgba(15, 23, 42, 0.9);
+      --panel-border: rgba(148, 163, 184, 0.16);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --danger: #ef4444;
+      --button: #2563eb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(37, 99, 235, 0.18), transparent 38%),
+        linear-gradient(180deg, #0b1220 0%, #111827 100%);
+      color: var(--text);
+      padding: 32px;
+    }
+
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      gap: 24px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 24px 60px rgba(2, 6, 23, 0.32);
+      backdrop-filter: blur(18px);
+    }
+
+    h1, h2, h3, p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 30px;
+      letter-spacing: -0.03em;
+    }
+
+    .subtle {
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.cols-2 {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    label {
+      display: grid;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    input {
+      width: 100%;
+      min-height: 42px;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      padding: 0 14px;
+      font-size: 14px;
+    }
+
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .tool-card {
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+      background: rgba(15, 23, 42, 0.72);
+    }
+
+    .tool-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .tool-status {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .badge.connected {
+      color: #86efac;
+      background: rgba(34, 197, 94, 0.14);
+      border: 1px solid rgba(34, 197, 94, 0.22);
+    }
+
+    .badge.warning {
+      color: #fcd34d;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.22);
+    }
+
+    .badge.off {
+      color: #cbd5e1;
+      background: rgba(148, 163, 184, 0.1);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 12px;
+      min-height: 40px;
+      padding: 0 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      background: var(--button);
+      cursor: pointer;
+    }
+
+    button.danger {
+      background: var(--danger);
+    }
+
+    button.secondary {
+      background: rgba(51, 65, 85, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+    }
+
+    pre {
+      margin: 0;
+      padding: 14px;
+      border-radius: 14px;
+      background: rgba(2, 6, 23, 0.72);
+      color: #cbd5e1;
+      overflow: auto;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="panel">
+      <h1>Managed Tools Browser Demo</h1>
+      <p class="subtle">
+        Browser SDK example for Google managed tools. Each button starts OAuth for only the clicked tool.
+        Status and disconnect remain shared across the agent's Google connection.
+      </p>
+    </section>
+
+    <section class="panel grid cols-2">
+      <label>
+        API Key
+        <input id="apiKey" placeholder="vk_your_api_key_here">
+      </label>
+      <label>
+        Agent ID
+        <input id="agentId" placeholder="your_agent_id">
+      </label>
+      <label>
+        API URL
+        <input id="apiUrl" value="http://localhost:8000/api/v1">
+      </label>
+      <label>
+        Return URL
+        <input id="returnUrl">
+      </label>
+    </section>
+
+    <section class="panel">
+      <div class="tool-grid">
+        <article class="tool-card">
+          <div class="tool-header">
+            <div>
+              <h3>Google Calendar</h3>
+              <p class="tool-status" id="calendarStatus">Not checked</p>
+            </div>
+            <span class="badge off" id="calendarBadge">Disabled</span>
+          </div>
+          <p class="small">Requests only Calendar scopes for the selected operations.</p>
+          <div class="actions">
+            <button id="calendarConnect">Connect Calendar</button>
+          </div>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-header">
+            <div>
+              <h3>Google Sheets</h3>
+              <p class="tool-status" id="sheetsStatus">Not checked</p>
+            </div>
+            <span class="badge off" id="sheetsBadge">Disabled</span>
+          </div>
+          <p class="small">Requests only Sheets scopes for the selected operations.</p>
+          <div class="actions">
+            <button id="sheetsConnect">Connect Sheets</button>
+          </div>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-header">
+            <div>
+              <h3>Gmail</h3>
+              <p class="tool-status" id="gmailStatus">Not checked</p>
+            </div>
+            <span class="badge off" id="gmailBadge">Disabled</span>
+          </div>
+          <p class="small">Requests only Gmail scopes for the selected operations.</p>
+          <div class="actions">
+            <button id="gmailConnect">Connect Gmail</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="actions" style="margin-bottom: 14px;">
+        <button class="secondary" id="refreshStatus">Refresh Shared Status</button>
+        <button class="danger" id="disconnectGoogle">Disconnect Google (all tools)</button>
+      </div>
+      <p class="small" style="margin-bottom: 12px;">
+        Disconnect removes Google access for Calendar, Sheets, and Gmail on this agent.
+      </p>
+      <pre id="statusOutput">Shared Google status will appear here.</pre>
+    </section>
+  </div>
+
+  <script type="module">
+    import VoiceAI, { getGoogleReconnectState } from 'https://cdn.jsdelivr.net/npm/@voice-ai-labs/web-sdk@1.0.0/dist/index.esm.js';
+
+    const calendarConfig = {
+      google_calendar: {
+        enabled: true,
+        timezone: 'America/Los_Angeles',
+        selected_operations: [
+          'google_calendar_check_availability',
+          'google_calendar_create_event',
+        ],
+      },
+    };
+
+    const sheetsConfig = {
+      google_sheets: {
+        enabled: true,
+        spreadsheet_id: 'YOUR_SPREADSHEET_ID',
+        sheet_name: 'Sheet1',
+        selected_operations: [
+          'google_sheets_append_row',
+          'google_sheets_read_rows',
+        ],
+      },
+    };
+
+    const gmailConfig = {
+      google_gmail: {
+        enabled: true,
+        selected_operations: [
+          'google_gmail_send_email',
+        ],
+      },
+    };
+
+    const toolConfigs = {
+      calendar: calendarConfig,
+      sheets: sheetsConfig,
+      gmail: gmailConfig,
+    };
+
+    const ids = {
+      apiKey: document.getElementById('apiKey'),
+      agentId: document.getElementById('agentId'),
+      apiUrl: document.getElementById('apiUrl'),
+      returnUrl: document.getElementById('returnUrl'),
+      statusOutput: document.getElementById('statusOutput'),
+      refreshStatus: document.getElementById('refreshStatus'),
+      disconnectGoogle: document.getElementById('disconnectGoogle'),
+      calendarConnect: document.getElementById('calendarConnect'),
+      sheetsConnect: document.getElementById('sheetsConnect'),
+      gmailConnect: document.getElementById('gmailConnect'),
+      calendarStatus: document.getElementById('calendarStatus'),
+      sheetsStatus: document.getElementById('sheetsStatus'),
+      gmailStatus: document.getElementById('gmailStatus'),
+      calendarBadge: document.getElementById('calendarBadge'),
+      sheetsBadge: document.getElementById('sheetsBadge'),
+      gmailBadge: document.getElementById('gmailBadge'),
+    };
+
+    ids.returnUrl.value = window.location.href;
+
+    function createClient() {
+      return new VoiceAI({
+        apiKey: ids.apiKey.value.trim(),
+        apiUrl: ids.apiUrl.value.trim(),
+      });
+    }
+
+    function requireInputs() {
+      if (!ids.apiKey.value.trim()) throw new Error('API key is required');
+      if (!ids.agentId.value.trim()) throw new Error('Agent ID is required');
+    }
+
+    function setBadge(element, label, kind) {
+      element.textContent = label;
+      element.className = `badge ${kind}`;
+    }
+
+    function renderToolState(status, config, statusNode, badgeNode) {
+      const reconnect = getGoogleReconnectState(config, status);
+      if (!status || !status.connected) {
+        statusNode.textContent = 'Not connected';
+        setBadge(badgeNode, 'Not Connected', 'off');
+        return;
+      }
+
+      if (reconnect.reconnect_required) {
+        statusNode.textContent = `Reconnect required (${reconnect.missing_scopes.length} missing scope${reconnect.missing_scopes.length === 1 ? '' : 's'})`;
+        setBadge(badgeNode, 'Reconnect Required', 'warning');
+        return;
+      }
+
+      statusNode.textContent = 'Connected for this tool';
+      setBadge(badgeNode, 'Connected', 'connected');
+    }
+
+    async function refreshStatus() {
+      requireInputs();
+      const voiceai = createClient();
+      const status = await voiceai.managedTools.google.getStatus(ids.agentId.value.trim());
+      ids.statusOutput.textContent = JSON.stringify(status, null, 2);
+      renderToolState(status, calendarConfig, ids.calendarStatus, ids.calendarBadge);
+      renderToolState(status, sheetsConfig, ids.sheetsStatus, ids.sheetsBadge);
+      renderToolState(status, gmailConfig, ids.gmailStatus, ids.gmailBadge);
+      return status;
+    }
+
+    async function startScopedOAuth(config) {
+      requireInputs();
+      const voiceai = createClient();
+      const start = await voiceai.managedTools.google.startOAuth(ids.agentId.value.trim(), {
+        returnUrl: ids.returnUrl.value.trim() || window.location.href,
+        managedTools: config,
+      });
+      window.open(start.auth_url, 'google-oauth', 'popup,width=540,height=720');
+      ids.statusOutput.textContent = JSON.stringify({
+        auth_url: start.auth_url,
+        requested_scopes: start.requested_scopes,
+      }, null, 2);
+    }
+
+    ids.calendarConnect.addEventListener('click', async () => {
+      try {
+        await startScopedOAuth(toolConfigs.calendar);
+      } catch (error) {
+        ids.statusOutput.textContent = String(error);
+      }
+    });
+
+    ids.sheetsConnect.addEventListener('click', async () => {
+      try {
+        await startScopedOAuth(toolConfigs.sheets);
+      } catch (error) {
+        ids.statusOutput.textContent = String(error);
+      }
+    });
+
+    ids.gmailConnect.addEventListener('click', async () => {
+      try {
+        await startScopedOAuth(toolConfigs.gmail);
+      } catch (error) {
+        ids.statusOutput.textContent = String(error);
+      }
+    });
+
+    ids.refreshStatus.addEventListener('click', async () => {
+      try {
+        await refreshStatus();
+      } catch (error) {
+        ids.statusOutput.textContent = String(error);
+      }
+    });
+
+    ids.disconnectGoogle.addEventListener('click', async () => {
+      try {
+        requireInputs();
+        const voiceai = createClient();
+        const result = await voiceai.managedTools.google.disconnect(ids.agentId.value.trim());
+        ids.statusOutput.textContent = JSON.stringify(result, null, 2);
+        ids.calendarStatus.textContent = 'Not connected';
+        ids.sheetsStatus.textContent = 'Not connected';
+        ids.gmailStatus.textContent = 'Not connected';
+        setBadge(ids.calendarBadge, 'Not Connected', 'off');
+        setBadge(ids.sheetsBadge, 'Not Connected', 'off');
+        setBadge(ids.gmailBadge, 'Not Connected', 'off');
+      } catch (error) {
+        ids.statusOutput.textContent = String(error);
+      }
+    });
+  </script>
+</body>
+</html>
