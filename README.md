@@ -27,7 +27,7 @@ constants so you can attach a managed pronunciation dictionary to direct TTS req
 | --- | --- |
 | [`Agent Webhook Receiver`](webhook_receiver_server.py) | Simple server for receiving event, inbound-call, and tool webhooks |
 | [`Widget Browser Demo`](voice_agent_widget_browser_sdk_demo.html) | Browser SDK widget example using the packaged web SDK |
-| [`Managed Tools Browser Demo`](managed_tools_browser_sdk_demo.html) | Browser SDK example for Google Calendar, Sheets, and Gmail connect flows |
+| [`Managed Tools Browser Demo`](managed_tools_browser_sdk_demo.html) | Browser SDK example for the shared Google managed-tools connection and per-tool readiness |
 
 ## Integrations
 

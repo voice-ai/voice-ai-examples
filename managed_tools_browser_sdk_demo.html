@@ -196,8 +196,8 @@
     <section class="panel">
       <h1>Managed Tools Browser Demo</h1>
       <p class="subtle">
-        Browser SDK example for Google managed tools. Each button starts OAuth for only the clicked tool.
-        Status and disconnect remain shared across the agent's Google connection.
+        Browser SDK example for the shared Google managed-tools connection.
+        Calendar, Sheets, and Gmail each show readiness, but connect, reconnect, and disconnect are shared for the agent.
       </p>
     </section>
 
@@ -212,7 +212,7 @@
       </label>
       <label>
         API URL
-        <input id="apiUrl" value="http://localhost:8000/api/v1">
+        <input id="apiUrl" value="https://dev.voice.ai/api/v1">
       </label>
       <label>
         Return URL
@@ -230,10 +230,7 @@
             </div>
             <span class="badge off" id="calendarBadge">Disabled</span>
           </div>
-          <p class="small">Requests only Calendar scopes for the selected operations.</p>
-          <div class="actions">
-            <button id="calendarConnect">Connect Calendar</button>
-          </div>
+          <p class="small">Calendar readiness is derived from the shared Google connection and the selected operations.</p>
         </article>
 
         <article class="tool-card">
@@ -244,10 +241,7 @@
             </div>
             <span class="badge off" id="sheetsBadge">Disabled</span>
           </div>
-          <p class="small">Requests only Sheets scopes for the selected operations.</p>
-          <div class="actions">
-            <button id="sheetsConnect">Connect Sheets</button>
-          </div>
+          <p class="small">Sheets readiness is derived from the shared Google connection and the selected operations.</p>
         </article>
 
         <article class="tool-card">
@@ -258,21 +252,19 @@
             </div>
             <span class="badge off" id="gmailBadge">Disabled</span>
           </div>
-          <p class="small">Requests only Gmail scopes for the selected operations.</p>
-          <div class="actions">
-            <button id="gmailConnect">Connect Gmail</button>
-          </div>
+          <p class="small">Gmail readiness is derived from the shared Google connection and the selected operations.</p>
         </article>
       </div>
     </section>
 
     <section class="panel">
       <div class="actions" style="margin-bottom: 14px;">
+        <button id="connectGoogle">Connect / Reconnect Google</button>
         <button class="secondary" id="refreshStatus">Refresh Shared Status</button>
         <button class="danger" id="disconnectGoogle">Disconnect Google (all tools)</button>
       </div>
       <p class="small" style="margin-bottom: 12px;">
-        Disconnect removes Google access for Calendar, Sheets, and Gmail on this agent.
+        Connect or reconnect requests access for the Google tools currently enabled in this demo configuration. Disconnect removes Google access for Calendar, Sheets, and Gmail on this agent.
       </p>
       <pre id="statusOutput">Shared Google status will appear here.</pre>
     </section>
@@ -313,10 +305,10 @@
       },
     };
 
-    const toolConfigs = {
-      calendar: calendarConfig,
-      sheets: sheetsConfig,
-      gmail: gmailConfig,
+    const managedToolsConfig = {
+      ...calendarConfig,
+      ...sheetsConfig,
+      ...gmailConfig,
     };
 
     const ids = {
@@ -325,11 +317,9 @@
       apiUrl: document.getElementById('apiUrl'),
       returnUrl: document.getElementById('returnUrl'),
       statusOutput: document.getElementById('statusOutput'),
+      connectGoogle: document.getElementById('connectGoogle'),
       refreshStatus: document.getElementById('refreshStatus'),
       disconnectGoogle: document.getElementById('disconnectGoogle'),
-      calendarConnect: document.getElementById('calendarConnect'),
-      sheetsConnect: document.getElementById('sheetsConnect'),
-      gmailConnect: document.getElementById('gmailConnect'),
       calendarStatus: document.getElementById('calendarStatus'),
       sheetsStatus: document.getElementById('sheetsStatus'),
       gmailStatus: document.getElementById('gmailStatus'),
@@ -386,12 +376,12 @@
       return status;
     }
 
-    async function startScopedOAuth(config) {
+    async function startSharedOAuth() {
       requireInputs();
       const voiceai = createClient();
       const start = await voiceai.managedTools.google.startOAuth(ids.agentId.value.trim(), {
         returnUrl: ids.returnUrl.value.trim() || window.location.href,
-        managedTools: config,
+        managedTools: managedToolsConfig,
       });
       window.open(start.auth_url, 'google-oauth', 'popup,width=540,height=720');
       ids.statusOutput.textContent = JSON.stringify({
@@ -400,25 +390,9 @@
       }, null, 2);
     }
 
-    ids.calendarConnect.addEventListener('click', async () => {
+    ids.connectGoogle.addEventListener('click', async () => {
       try {
-        await startScopedOAuth(toolConfigs.calendar);
-      } catch (error) {
-        ids.statusOutput.textContent = String(error);
-      }
-    });
-
-    ids.sheetsConnect.addEventListener('click', async () => {
-      try {
-        await startScopedOAuth(toolConfigs.sheets);
-      } catch (error) {
-        ids.statusOutput.textContent = String(error);
-      }
-    });
-
-    ids.gmailConnect.addEventListener('click', async () => {
-      try {
-        await startScopedOAuth(toolConfigs.gmail);
+        await startSharedOAuth();
       } catch (error) {
         ids.statusOutput.textContent = String(error);
       }

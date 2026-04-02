@@ -27,7 +27,7 @@ The server will:
 - Log metadata headers for tool webhooks:
   X-VoiceAI-Request-Id, X-VoiceAI-Tool-Name, X-VoiceAI-Agent-Id, X-VoiceAI-Call-Id
 - Return JSON echo responses for event/tool webhooks
-- Return example personalization data for inbound call webhooks
+- Return example personalization data and runtime overrides for inbound call webhooks
 """
 
 import argparse
@@ -296,6 +296,12 @@ class WebhookHandler(BaseHTTPRequestHandler):
                     "source": "example-inbound-call-webhook",
                     "caller_number": payload.get("from_number") if isinstance(payload, dict) else "",
                     "dialed_number": payload.get("to_number") if isinstance(payload, dict) else "",
+                },
+                "agent_overrides": {
+                    "tts_params": {
+                        "language": "es",
+                        "temperature": 0.7,
+                    }
                 },
             }
             self._send_json(200, response_payload)
