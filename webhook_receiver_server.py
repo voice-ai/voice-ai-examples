@@ -28,6 +28,7 @@ The server will:
   X-VoiceAI-Request-Id, X-VoiceAI-Tool-Name, X-VoiceAI-Agent-Id, X-VoiceAI-Call-Id
 - Return JSON echo responses for event/tool webhooks
 - Return example runtime overrides for inbound call webhooks
+- Support invalid inbound-call response modes via `?mode=...` so you can test webhook validation
 """
 
 import argparse
@@ -240,6 +241,37 @@ class WebhookHandler(BaseHTTPRequestHandler):
             "received_at": datetime.now().isoformat(),
         }
 
+    def _build_inbound_call_response(self, query_params: dict, payload) -> dict:
+        """Return a valid or intentionally invalid inbound_call response for testing."""
+        mode = query_params.get("mode")
+        if isinstance(mode, list):
+            mode = mode[0] if mode else None
+
+        if mode == "invalid-dynamic-variables":
+            return {
+                "dynamic_variables": {
+                    "unexpected_name": "Example Caller",
+                }
+            }
+
+        if mode == "invalid-agent-overrides":
+            return {
+                "agent_overrides": {
+                    "tts_params": {
+                        "speaker": "not-allowed",
+                    }
+                }
+            }
+
+        return {
+            "agent_overrides": {
+                "tts_params": {
+                    "language": "es",
+                    "temperature": 0.7,
+                }
+            },
+        }
+
     def _handle_incoming_request(self) -> None:
         """Handle event, inbound_call, and tool webhooks in a generic way."""
         parsed_url = urlparse(self.path)
@@ -291,14 +323,7 @@ class WebhookHandler(BaseHTTPRequestHandler):
         })
 
         if request_type == "inbound_call":
-            response_payload = {
-                "agent_overrides": {
-                    "tts_params": {
-                        "language": "es",
-                        "temperature": 0.7,
-                    }
-                },
-            }
+            response_payload = self._build_inbound_call_response(query_params, payload)
             self._send_json(200, response_payload)
             return
 
@@ -419,6 +444,15 @@ def main():
     print(f"    tool (POST):  http://localhost:{args.port}{ACCOUNT_STATUS_TOOL_PATH}")
     print(f"    tool (GET):   http://localhost:{args.port}{SEARCH_KB_TOOL_PATH}")
     print("    (or your ngrok URL equivalents)")
+    print()
+    print("  Inbound call webhook test modes:")
+    print("    valid response:")
+    print(f"      http://localhost:{args.port}{INBOUND_CALL_WEBHOOK_PATH}")
+    print("    invalid dynamic_variables response:")
+    print(f"      http://localhost:{args.port}{INBOUND_CALL_WEBHOOK_PATH}?mode=invalid-dynamic-variables")
+    print("    invalid agent_overrides response:")
+    print(f"      http://localhost:{args.port}{INBOUND_CALL_WEBHOOK_PATH}?mode=invalid-agent-overrides")
+    print("    Use one of these URLs temporarily in webhooks.inbound_call.url when testing.")
     print()
     print("  Example webhooks.tools config to paste into your agent:")
     print("    POST tool example:")
