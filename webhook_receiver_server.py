@@ -27,7 +27,7 @@ The server will:
 - Log metadata headers for tool webhooks:
   X-VoiceAI-Request-Id, X-VoiceAI-Tool-Name, X-VoiceAI-Agent-Id, X-VoiceAI-Call-Id
 - Return JSON echo responses for event/tool webhooks
-- Return example personalization data and runtime overrides for inbound call webhooks
+- Return example runtime overrides for inbound call webhooks
 """
 
 import argparse
@@ -292,11 +292,6 @@ class WebhookHandler(BaseHTTPRequestHandler):
 
         if request_type == "inbound_call":
             response_payload = {
-                "dynamic_variables": {
-                    "source": "example-inbound-call-webhook",
-                    "caller_number": payload.get("from_number") if isinstance(payload, dict) else "",
-                    "dialed_number": payload.get("to_number") if isinstance(payload, dict) else "",
-                },
                 "agent_overrides": {
                     "tts_params": {
                         "language": "es",
@@ -396,6 +391,12 @@ def main():
     print(f"  Host: {args.host}")
     print(f"  Port: {args.port}")
     print(f"  Secret: {'configured' if webhook_secret else 'not configured'}")
+    if webhook_secret:
+        print("  Start with secret:")
+        print(f"    python webhook_receiver_server.py --port {args.port} --secret your-webhook-secret")
+    else:
+        print("  Start with secret validation enabled:")
+        print(f"    python webhook_receiver_server.py --port {args.port} --secret your-webhook-secret")
     print()
     print("  Endpoints:")
     print(f"    GET  /health                       - Health check")
