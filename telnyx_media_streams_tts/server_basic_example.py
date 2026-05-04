@@ -62,6 +62,7 @@ TTS_API_PARAMS = {
     # "temperature": 1.0,
     # "top_p": 0.8,
     # "model": "voiceai-tts-v1-latest",
+    # "model": "voiceai-tts-lite-v1-latest",  # English only
     # "language": "",
 }
 
