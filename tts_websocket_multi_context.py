@@ -65,6 +65,8 @@ TOP_P = 0.8
 # Supported model values:
 # - "voiceai-tts-v1-latest"
 # - "voiceai-tts-v1-2026-02-10"
+# - "voiceai-tts-lite-v1-latest"
+# - "voiceai-tts-lite-v1-2026-04-15"
 # - "voiceai-tts-multilingual-v1-latest"
 # - "voiceai-tts-multilingual-v1-2026-02-10"
 MODEL = None  # Leave as None to let the server auto-select from LANGUAGE

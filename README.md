@@ -14,12 +14,17 @@ For product documentation and the full API reference, use:
 | Voice cloning | [`Voice CRUD`](tts_voice_crud.py) | Create, list, get, update, and delete voices |
 | Dictionaries | [`Pronunciation Dictionary CRUD`](tts_pronunciation_dictionary_crud.py) | Create, import, list, rename, version, download, and delete pronunciation dictionaries |
 | Inference | [`HTTP Speech`](tts_generate_speech.py) | Generate one complete audio response over HTTP |
+| Inference | [`HTTP Speech Lite`](tts_generate_speech_lite.py) | Generate one complete English-only Lite TTS response over HTTP |
 | Inference | [`HTTP Speech Streaming`](tts_generate_speech_stream.py) | Stream audio over HTTP as it is generated |
+| Inference | [`HTTP Speech Streaming Lite`](tts_generate_speech_stream_lite.py) | Stream English-only Lite TTS audio over HTTP as it is generated |
 | Inference | [`Single-Context WebSocket`](tts_websocket_single_context.py) | Single-generation WebSocket example |
 | Inference | [`Multi-Context WebSocket`](tts_websocket_multi_context.py) | Multi-context WebSocket example |
 
 The inference examples above also include optional `dictionary_id` and `dictionary_version`
 constants so you can attach a managed pronunciation dictionary to direct TTS requests.
+Set `MODEL = "voiceai-tts-lite-v1-latest"` and `LANGUAGE = "en"` for Lite inference,
+or use [`tts_generate_speech_lite.py`](tts_generate_speech_lite.py) /
+[`tts_generate_speech_stream_lite.py`](tts_generate_speech_stream_lite.py) directly.
 
 ## Voice Agents
 
@@ -44,6 +49,8 @@ Edit the constants at the top of the file you want to run, then execute it direc
 python tts_clone.py
 python tts_pronunciation_dictionary_crud.py
 python tts_generate_speech.py
+python tts_generate_speech_lite.py
+python tts_generate_speech_stream_lite.py
 python tts_websocket_multi_context.py
 ```
 
